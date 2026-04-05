@@ -1,0 +1,6 @@
+dash==2.16.1
+pandas
+plotly
+numpy
+flask
+dash-bootstrap-components
