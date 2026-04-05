@@ -1,9 +1,19 @@
-import dash
-from dash import dcc, html, Input, Output, State, ctx
-import pandas as pd
-import plotly.express as px
+import os
 import base64
 import io
+import pandas as pd
+import plotly.express as px
+import psycopg2
+import dash
+from dash import dcc, html, Input, Output, State
+
+# Récupérer les variables d'environnement pour la base de données
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_NAME = os.environ.get("DB_NAME")
+
+
 
 # Initialisation du dashboard
 app = dash.Dash(__name__)
@@ -62,7 +72,6 @@ app.layout = html.Div([
 # Stocker le DataFrame en mémoire
 df_store = {}
 
-
 # Callback pour charger le CSV
 @app.callback(
     Output('file-info', 'children'),
@@ -91,7 +100,6 @@ def load_csv(contents, filename):
 
     return f"Fichier chargé : {filename}", cols, cols, cols, cols
 
-
 # Callback pour mettre à jour les valeurs catégories
 @app.callback(
     Output('cat-val-dropdown', 'options'),
@@ -103,7 +111,6 @@ def update_cat_values(cat_col):
     unique_vals = df_store['df'][cat_col].dropna().unique()
     options = [{"label": "Tous", "value": "Tous"}] + [{"label": str(v), "value": str(v)} for v in sorted(unique_vals)]
     return options
-
 
 # Callback pour générer les graphiques
 @app.callback(
@@ -136,23 +143,8 @@ def update_graph(n_clicks, x_col, y_col, num_col, num_val, cat_col, cat_val):
     fig = px.line(df_plot, x=x_col, y=y_col, markers=True, title=f"{y_col} vs {x_col}")
     return fig
 
-
+# Lancement de l'app pour Render
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8050))
+    app.run(debug=True, host="0.0.0.0", port=port)
 
-# This is a sample Python script.
-
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
